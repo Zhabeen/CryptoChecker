@@ -1,0 +1,37 @@
+<div class="exchange-time">
+  <span>
+    Текущее локальное время: 
+    {{ currentExchangeTime$ | async | date: 'HH:mm:ss' }}
+  </span>
+
+  <div class="server-times">
+    <ng-container *ngIf="selectedExchange === 'binance'">
+      <span *ngIf="binanceTime$ | async as binanceTime; else loadingBinance">
+        Время сервера Binance: {{ binanceTime | date: 'HH:mm:ss' : 'UTC' }}
+      </span>
+      <ng-template #loadingBinance>
+        Время сервера Binance: Загрузка...
+      </ng-template>
+    </ng-container>
+
+    <ng-container *ngIf="selectedExchange === 'bybit'">
+      <span *ngIf="bybitTime$ | async as bybitTime; else loadingBybit">
+        Время сервера Bybit: {{ bybitTime | date: 'HH:mm:ss' : 'UTC' }}
+      </span>
+      <ng-template #loadingBybit>
+        Время сервера Bybit: Загрузка...
+      </ng-template>
+    </ng-container>
+
+    <ng-container *ngIf="selectedExchange === 'okx'">
+      <span *ngIf="okxTime$ | async as okxTime; else loadingOkx">
+        Время сервера OKX: {{ okxTime | date: 'HH:mm:ss' : 'UTC' }}
+      </span>
+      <ng-template #loadingOkx>
+        Время сервера OKX: Загрузка...
+      </ng-template>
+    </ng-container>
+  </div>
+
+  <span class="tooltip" title="Серверное время"></span>
+</div>

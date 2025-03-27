@@ -1,0 +1,62 @@
+<div class="container">
+
+  <div class="header">
+    <input type="text" [(ngModel)]="filterText" placeholder="Фильтр по инструменту" />
+    <select [(ngModel)]="selectedExchange" (change)="changeExchange()">
+      <option value="binance">Binance</option>
+      <option value="bybit">Bybit</option>
+      <option value="okx">OKX</option>
+   </select>
+  </div>
+
+  <div class="table-container" (scroll)="onScroll($event)">
+    <table>
+      <thead>
+        <tr>
+          <th title="Пара инструментов по которым произведена операция">Инструмент</th>
+          <th title="Цена инструмента (округление до 4 знаков)">
+            Цена
+            <button (click)="sortByPrice()">↕</button>
+          </th>
+          <th title="Объём торгов за 24 часа">Объём торгов</th>
+          <th title="Процент изменения цены за 24 часа">% 24ч</th>
+          <th title="Максимальная и минимальная цена за 24 часа">24ч H/L</th>
+          <th *ngIf="!hasNoOpenTime(instruments)">
+            <button (click)="sortByTime('openTime')">↕</button>
+            Дата открытия
+          </th>
+          <th *ngIf="!hasNoCloseTime(instruments)">
+            <button (click)="sortByTime('closeTime')">↕</button>
+            Дата закрытия
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <ng-container *ngIf="instruments$ | async as instruments">
+          <tr *ngFor="let inst of (getFiltered() | slice:0:displayCount)">
+            <td>{{inst.symbol}}</td>
+            <td [ngClass]="{'positive': +inst.priceChangePercent >= 0, 'negative': +inst.priceChangePercent < 0}">{{ inst.lastPrice | priceFormat }}</td>
+            <td>{{ inst.volume | tradeVolume }}</td>
+            <td>
+              {{ inst.priceChangePercent | number:'1.2-2' }}%
+            </td>
+            <td>{{ inst.highPrice | number:'1.2-2' }}/{{ inst.lowPrice | number:'1.2-2' }}</td>
+            <td *ngIf="!hasNoOpenTime(instruments)">{{inst.openTime | timeFormat}}</td>
+            <td *ngIf="!hasNoCloseTime(instruments)">{{inst.closeTime | timeFormat}}</td>
+          </tr>
+        </ng-container>
+      </tbody>
+    </table>
+    <div class="scroll-indicator" *ngIf="hasMoreData"></div>
+    <div *ngIf="isLoading" class="loading-container">
+      <div class="loader"></div>
+      Загрузка данных...
+    </div>
+  </div>
+
+  <app-exchange-time [selectedExchange]="selectedExchange"></app-exchange-time>
+
+  <div class="error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+</div>
